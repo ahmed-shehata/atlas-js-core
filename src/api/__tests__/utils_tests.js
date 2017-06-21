@@ -69,4 +69,13 @@ test('Should merge options with path and get one value from defaults', t => {
   t.deepEqual(resolutions, ['small']);
 });
 
+test('Should return default options if pathToPlain that is not valid', t => {
+  const { reco_id, tracking_string } = mergePlainOptsWithDefault(
+    { reco_id: '123' },
+    { reco_id: '', tracking_string: '' },
+    'media');
+
+  t.is(reco_id, '');
+  t.is(tracking_string, '');
+});
 
