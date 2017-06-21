@@ -1,3 +1,5 @@
+import { mergePlainOptsWithDefault } from '../utils';
+
 const CDNS = ['mosaic01', 'mosaic02'];
 const AVAILABLE_RESOLUTIONS = {
   thumbnail: 'pdp-thumb',
@@ -11,6 +13,10 @@ const AVAILABLE_RESOLUTIONS = {
   large_hd: 'large_hd'
 };
 const DEFAULT_RESOLUTIONS = ['thumbnail', 'medium', 'large'];
+const DEFAULT_OPTS = {
+  cdn: CDNS[0],
+  image_resolutions: DEFAULT_RESOLUTIONS
+};
 
 const isImage = (type) => ['IMAGE', 'IMAGE_360', 'IMAGE_PARTNER'].indexOf(type) !== -1;
 const isVideo = (type) => ['VIDEO_THUMBNAIL', 'VIDEO_HD', 'VIDEO_LOW'].indexOf(type) !== -1;
@@ -37,9 +43,7 @@ const createVideoItem = (item, cdn) => {
   };
 };
 
-const getImageResolutions = (optsImageResolutions) => {
-  const imageResolutions = optsImageResolutions || DEFAULT_RESOLUTIONS;
-
+const filterImageResolutions = (imageResolutions) => {
   return Object.keys(AVAILABLE_RESOLUTIONS)
                .filter(key => imageResolutions.indexOf(key) !== -1) /* eslint no-magic-numbers: [0] */
                .reduce((finalResolutions, key) => {
@@ -49,16 +53,8 @@ const getImageResolutions = (optsImageResolutions) => {
 };
 
 const getCdnAndResolutions = (options) => {
-  const defaultOptions = {
-    cdn: CDNS[0],
-    optsImageResolutions: DEFAULT_RESOLUTIONS
-  };
-
-  let { cdn, image_resolutions: imageResolutions } = (options && options.media) || defaultOptions;
-
-  cdn = cdn || defaultOptions.cdn;
-
-  imageResolutions = getImageResolutions(imageResolutions);
+  const { cdn, image_resolutions } = mergePlainOptsWithDefault(options, DEFAULT_OPTS, 'media');
+  const imageResolutions = filterImageResolutions(image_resolutions);
 
   return { cdn, imageResolutions };
 };

@@ -8,7 +8,7 @@ import {
 } from '../models/guest_checkout_models';
 import { RecommendedArticles } from '../models/recommendation_models';
 import mediaTransform from './transforms/media_trasform';
-
+import { mergePlainOptsWithDefault } from './utils';
 const successCode = 200;
 const badRequestCode = 399;
 
@@ -324,14 +324,17 @@ class AtlasSDKClient {
    *    }
    * });
    */
-  getRecommendations(sku, options = {
-    reco_id: '',
-    tracking_string: ''
-  }) {
+  getRecommendations(sku, options = {}) {
+    const { reco_id: recoId, tracking_string: trackingString } = mergePlainOptsWithDefault(options, {
+      reco_id: '',
+      tracking_string: ''
+    });
+
     const config = this.config;
     const catalogUrl = config.catalogApi.url;
     const type = config.recommendations[0].type;
-    const url = `${catalogUrl}/articles/${sku}/recommendations/?client_id=${config.clientId}&anon_id=${options.reco_id}`; /* eslint max-len: 0 */
+    const url = `${catalogUrl}/articles/${sku}/recommendations/?client_id=${config.clientId}&anon_id=${recoId}`; /* eslint max-len: 0 */
+
     const GetRecommendationsEndpoint = {
       url: url,
       method: 'GET',
@@ -343,7 +346,7 @@ class AtlasSDKClient {
         'X-Reco-Location': config.recommendations[0].location,
         'X-Reco-Type': type,
         'X-Channel': config.recommendations[0].channel,
-        'X-Tracking-String': options.tracking_string
+        'X-Tracking-String': trackingString
       },
       transform: (response) => {
         const result = [];
